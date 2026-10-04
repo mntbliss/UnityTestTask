@@ -25,6 +25,6 @@ namespace _Bludoku.Scripts.Config
 
         [Space]
         public string ComboFormat = "Combo x{0}!";
-        public string PlayerPrefsKey = "Combo";
     }
 }
+
