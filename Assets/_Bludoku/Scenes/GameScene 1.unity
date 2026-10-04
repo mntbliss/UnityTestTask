@@ -189,7 +189,7 @@ MonoBehaviour:
   scoreView: {fileID: 1464404212}
   board: {fileID: 1631287398}
   boosterView: {fileID: 817152374}
-  comboView: {fileID: 0}
+  comboView: {fileID: 509376008}
 --- !u!114 &34727245
 MonoBehaviour:
   m_ObjectHideFlags: 0
