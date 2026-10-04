@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _Bludoku.Scripts.Analytics;
 using _Bludoku.Scripts.Blocks;
 using _Bludoku.Scripts.Boards;
 using UnityEngine;
@@ -13,13 +14,14 @@ namespace _Bludoku.Scripts.Core
         [SerializeField] private Board board;
         [SerializeField] private List<Transform> figurePositions;
         [SerializeField] private int minTotalCells = 20;
-        
-        private readonly FiguresSaveLoad _saveLoad = new();
-        private readonly List<Figure> _currentFigures = new();
+
+        private readonly FiguresSaveLoad saveLoad = new();
+        private readonly List<Figure> currentFigures = new();
+        private readonly AnalyticsKeys analyticsKeys = AnalyticsService.Instance.Settings.Keys;
 
         public void LoadFigures()
         {
-            int[] savedFigureIds = _saveLoad.LoadFigures();
+            int[] savedFigureIds = saveLoad.LoadFigures();
             if (savedFigureIds == null || savedFigureIds.Length == 0)
             {
                 UpdateFigures();
@@ -63,34 +65,38 @@ namespace _Bludoku.Scripts.Core
 
                 RegisterFigure(newFigure, i);
             }
-            
-            _saveLoad.SaveFigures(_currentFigures);
+
+            saveLoad.SaveFigures(currentFigures);
         }
 
         public void ResetFigures()
         {
-            foreach (var figure in _currentFigures)
+            foreach (var figure in currentFigures)
             {
                 Destroy(figure.gameObject);
             }
-            _currentFigures.Clear();
+            currentFigures.Clear();
 
             UpdateFigures();
         }
-        
+
         public void UpdateToEasyFigures()
         {
-            foreach (var figure in _currentFigures)
+            foreach (var figure in currentFigures)
             {
                 Destroy(figure.gameObject);
             }
-            _currentFigures.Clear();
+            currentFigures.Clear();
 
             UpdateFigures(1);
         }
 
         private void FigurePicked(Figure figure)
         {
+            AnalyticsService.Instance.Track(
+                analyticsKeys.PieceMoveStarted,
+                $"Player started moving figure {figure.ID}",
+                ("figure_id", figure.ID.ToString()));
         }
 
         private void FigureDragged(Figure figure)
@@ -108,7 +114,7 @@ namespace _Bludoku.Scripts.Core
                 figure.SnapBack();
         }
 
-        private void RegisterFigure(Figure figure,  int index)
+        private void RegisterFigure(Figure figure, int index)
         {
             figure.SetInitialPosition(figurePositions[index]);
             figure.transform.position = figurePositions[index].position;
@@ -117,7 +123,7 @@ namespace _Bludoku.Scripts.Core
             figure.OnDragged += FigureDragged;
             figure.OnReleased += FigureReleased;
 
-            _currentFigures.Add(figure);
+            currentFigures.Add(figure);
         }
 
         private void PlaceFigure(Figure figure)
@@ -126,32 +132,49 @@ namespace _Bludoku.Scripts.Core
             figure.OnDragged -= FigureDragged;
             figure.OnReleased -= FigureReleased;
 
-            board.SetFigure(figure);
+            ClearResult clearResult = board.SetFigure(figure);
 
-            _currentFigures.Remove(figure);
+            AnalyticsService.Instance.Track(
+                analyticsKeys.PiecePlaced,
+                $"Player placed figure {clearResult.FigureId} at ({clearResult.PlaceX}, {clearResult.PlaceY})",
+                ("x", clearResult.PlaceX.ToString()),
+                ("y", clearResult.PlaceY.ToString()),
+                ("figure_id", clearResult.FigureId.ToString()));
+
+            if (clearResult.ClearedCount > 0)
+            {
+                AnalyticsService.Instance.Track(
+                    analyticsKeys.PieceDeleted,
+                    $"Cleared {clearResult.ClearedCount} cells after placing figure {clearResult.FigureId}",
+                    ("x", clearResult.PlaceX.ToString()),
+                    ("y", clearResult.PlaceY.ToString()),
+                    ("cleared_count", clearResult.ClearedCount.ToString()),
+                    ("figure_id", clearResult.FigureId.ToString()));
+            }
+
+            currentFigures.Remove(figure);
             Destroy(figure.gameObject);
 
-            if (_currentFigures.Count == 0)
+            if (currentFigures.Count == 0)
                 UpdateFigures();
 
             CheckPlaceability();
-            
-            _saveLoad.SaveFigures(_currentFigures);
+
+            saveLoad.SaveFigures(currentFigures);
         }
 
         private void CheckPlaceability()
         {
             bool anyCanBePlaced = false;
 
-            foreach (Figure figure in _currentFigures)
+            foreach (Figure figure in currentFigures)
             {
                 bool canPlace = board.CanPlaceAnywhere(figure.Grid);
                 figure.SetPlaceable(canPlace);
                 if (canPlace) anyCanBePlaced = true;
             }
 
-            if (!anyCanBePlaced && _currentFigures.Count > 0)
-                OnGameOver?.Invoke();
+            if (!anyCanBePlaced && currentFigures.Count > 0) OnGameOver?.Invoke();
         }
     }
 }

@@ -1,3 +1,4 @@
+using _Bludoku.Scripts.Analytics;
 using _Bludoku.Scripts.Boards;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace _Bludoku.Scripts.Score
         [SerializeField] private ScoreComboView comboView;
 
         private readonly ScoreComboSystem scoreComboSystem = new();
+        private readonly AnalyticsKeys analyticsKeys = AnalyticsService.Instance.Settings.Keys;
 
         private void Awake()
         {
@@ -36,11 +38,48 @@ namespace _Bludoku.Scripts.Score
 
         private void FigurePlaced(ClearResult result)
         {
+            int previousCombo = scoreComboSystem.ComboCount;
+
             scoreComboSystem.FigurePlaced(result.ClearedCount);
             ScoreSystem.SetComboCount(scoreComboSystem.ComboCount);
             ScoreSystem.AddSetScore(result.ClearedCount, scoreComboSystem.Multiplier);
             UpdateComboViews();
             scoreView.UpdateScore();
+
+            TrackComboAnalytics(previousCombo, result);
+        }
+
+        private void TrackComboAnalytics(int previousCombo, ClearResult result)
+        {
+            int comboCount = scoreComboSystem.ComboCount;
+
+            if (comboCount > previousCombo && comboCount >= scoreComboSystem.Settings.MinVisibleCombo)
+            {
+                AnalyticsService.Instance.Track(
+                    analyticsKeys.ComboReached,
+                    $"Player reached combo {comboCount}",
+                    ("combo", comboCount.ToString()),
+                    ("x", result.PlaceX.ToString()),
+                    ("y", result.PlaceY.ToString()));
+            }
+
+            if (previousCombo > 0 && comboCount == 0)
+            {
+                AnalyticsService.Instance.Track(
+                    analyticsKeys.ComboBroken,
+                    $"Player broke combo {previousCombo}",
+                    ("previous_combo", previousCombo.ToString()));
+            }
+
+            if (result.ClearedCount > 0 && scoreComboSystem.Multiplier > 1)
+            {
+                AnalyticsService.Instance.Track(
+                    analyticsKeys.BonusReceived,
+                    $"Player received x{scoreComboSystem.Multiplier} bonus for clearing {result.ClearedCount} cells",
+                    ("multiplier", scoreComboSystem.Multiplier.ToString()),
+                    ("cleared_count", result.ClearedCount.ToString()),
+                    ("combo", comboCount.ToString()));
+            }
         }
 
         private void UpdateView()

@@ -34,18 +34,24 @@ namespace _Bludoku.Scripts.Boards
             _gridView.Build(_grid);
         }
 
-        public int SetFigure(Figure figure)
+        public ClearResult SetFigure(Figure figure)
         {
             Vector2 corner = GetCornerPosition(figure);
-            SetGrid((int)corner.x, (int)corner.y, figure.Grid);
+            int placeX = (int)corner.x;
+            int placeY = (int)corner.y;
+
+            SetGrid(placeX, placeY, figure.Grid);
             _gridView.UpdateGrid(_grid);
 
             ClearResult clearResult = CheckAndClear();
+            clearResult.PlaceX = placeX;
+            clearResult.PlaceY = placeY;
+            clearResult.FigureId = figure.ID;
             OnFigurePlaced?.Invoke(clearResult);
 
             BoardSaveLoad.Save(_grid);
 
-            return clearResult.ClearedCount;
+            return clearResult;
         }
 
         public void SetCell(int x, int y, int value)
@@ -122,8 +128,7 @@ namespace _Bludoku.Scripts.Boards
         {
             bool[,] toClear = BuildClearMask(_grid, out var remove);
             var result = new ClearResult
-            { 
-                ClearedPositions = new List<Vector3>(),
+            {
                 FiguresRemovedCount = remove
             };
 
