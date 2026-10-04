@@ -1,5 +1,6 @@
 using _Bludoku.Scripts.Analytics;
 using _Bludoku.Scripts.Boards;
+using _Bludoku.Scripts.Effects;
 using UnityEngine;
 
 namespace _Bludoku.Scripts.Score
@@ -10,6 +11,7 @@ namespace _Bludoku.Scripts.Score
         [SerializeField] private Board board;
         [SerializeField] private ScoreBoosterView boosterView;
         [SerializeField] private ScoreComboView comboView;
+        [SerializeField] private EffectsManager effectsManager;
 
         private readonly ScoreComboSystem scoreComboSystem = new();
         private readonly AnalyticsKeys analyticsKeys = AnalyticsService.Instance.Settings.Keys;
@@ -42,7 +44,12 @@ namespace _Bludoku.Scripts.Score
 
             scoreComboSystem.FigurePlaced(result.ClearedCount);
             ScoreSystem.SetComboCount(scoreComboSystem.ComboCount);
+
+            int scoreBefore = ScoreSystem.Data.Score;
             ScoreSystem.AddSetScore(result.ClearedCount, scoreComboSystem.Multiplier);
+            int scoreGained = ScoreSystem.Data.Score - scoreBefore;
+            effectsManager.PlayClearEffects(result, scoreGained);
+
             UpdateComboViews();
             scoreView.UpdateScore();
 
