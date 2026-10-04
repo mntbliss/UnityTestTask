@@ -16,14 +16,14 @@ namespace _Bludoku.Scripts.Score
         
         public void UpdateScore(bool animate = true)
         {
-            if (_lastScore == ScoreSystem.Score)
+            if (_lastScore == ScoreSystem.Data.Score)
             {
                 animate = false;
             }
             
-            _lastScore = ScoreSystem.Score;
-            scoreText.text = ScoreSystem.Score.ToString();
-            highScoreText.text = ScoreSystem.HighScore.ToString();
+            _lastScore = ScoreSystem.Data.Score;
+            scoreText.text = ScoreSystem.Data.Score.ToString();
+            highScoreText.text = ScoreSystem.Data.HighScore.ToString();
             
             if (animate)
             {

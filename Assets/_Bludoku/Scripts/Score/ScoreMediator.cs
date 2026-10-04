@@ -22,7 +22,7 @@ namespace _Bludoku.Scripts.Score
         private void Start()
         {
             ScoreSystem.LoadScore();
-            scoreComboSystem.SetComboCount(ScoreSystem.ComboCount);
+            scoreComboSystem.SetComboCount(ScoreSystem.Data.ComboCount);
             UpdateComboViews(false);
             scoreView.UpdateScore(false);
         }

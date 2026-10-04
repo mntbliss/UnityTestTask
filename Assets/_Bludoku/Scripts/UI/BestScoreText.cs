@@ -15,7 +15,7 @@ namespace _Bludoku.Scripts.UI
         {
             _text = GetComponent<TMP_Text>();
             ScoreSystem.LoadScore();
-            _text.text = ScoreSystem.HighScore.ToString();
+            _text.text = ScoreSystem.Data.HighScore.ToString();
         }
     }
 }

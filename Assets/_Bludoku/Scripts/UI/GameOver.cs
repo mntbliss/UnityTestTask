@@ -23,7 +23,7 @@ namespace _Bludoku.Scripts.UI
         {
             base.Show();
             
-            scoreText.text = ScoreSystem.Score.ToString();
+            scoreText.text = ScoreSystem.Data.Score.ToString();
         }
     }
 }
