@@ -34,40 +34,30 @@ namespace _Bludoku.Scripts.Score
 
             currentCombo = comboCount;
 
-            if (isVisible && !wasVisible) Show(animate);
-            else if (!isVisible && wasVisible) Hide(animate);
+            if (isVisible != wasVisible) Show(isVisible, animate);
             else if (isVisible && animate && comboChanged) PlayComboPunch();
         }
 
         private bool IsVisible(int comboCount) => comboCount >= comboSettings.MinVisibleCombo;
 
-        private void Show(bool animate)
+        private void Show(bool visible, bool animate)
         {
             KillTweens();
 
-            if (!animate)
-            {
-                comboTransform.localScale = Vector3.one;
-                StartPulse();
-                return;
-            }
-
-            comboTransform.DOScale(Vector3.one, comboSettings.ShowDuration)
-                .SetEase(Ease.OutElastic)
-                .OnComplete(OnShowComplete);
-        }
-
-        private void Hide(bool animate)
-        {
-            KillTweens();
+            Vector3 targetScale = visible ? Vector3.one : Vector3.zero;
 
             if (!animate)
             {
-                comboTransform.localScale = Vector3.zero;
+                comboTransform.localScale = targetScale;
+                if (visible) StartPulse();
                 return;
             }
 
-            comboTransform.DOScale(Vector3.zero, comboSettings.HideDuration).SetEase(Ease.InBack);
+            float duration = visible ? comboSettings.ShowDuration : comboSettings.HideDuration;
+            Ease ease = visible ? Ease.OutElastic : Ease.InBack;
+            Tween tween = comboTransform.DOScale(targetScale, duration).SetEase(ease);
+
+            if (visible) tween.OnComplete(OnShowComplete);
         }
 
         private void PlayComboPunch()
