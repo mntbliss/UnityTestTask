@@ -25,4 +25,15 @@ MonoBehaviour:
   PulseScale: 1.08
   PulseDuration: 0.45
   ComboFormat: Combo x{0}!
-  PlayerPrefsKey: Combo
+  CrumbFormat: +{0}
+  CrumbFlyHeight: 2
+  CrumbMoveDuration: 2
+  CrumbFadeDuration: 2
+  CrumbPopScale: 1.15
+  CrumbPopDuration: 0.15
+  CrumbMaxCount: 6
+  CrumbRotationRange: {x: -15, y: 15}
+  CameraBumpStrength: 0.15
+  CameraBumpDuration: 0.22
+  CameraBumpVibrato: 12
+  CameraBumpElasticity: 0.4

@@ -122,6 +122,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &23143212
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 23143213}
+  - component: {fileID: 23143214}
+  m_Layer: 5
+  m_Name: Crumbs Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &23143213
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 23143212}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1051673166}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &23143214
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 23143212}
+  m_CullTransparentMesh: 1
 --- !u!1 &34727241
 GameObject:
   m_ObjectHideFlags: 0
@@ -190,6 +234,7 @@ MonoBehaviour:
   board: {fileID: 1631287398}
   boosterView: {fileID: 817152374}
   comboView: {fileID: 509376008}
+  effectsManager: {fileID: 34727247}
 --- !u!114 &34727245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,8 +279,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f55eda2ccf07488f81212c0ff227981e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  board: {fileID: 1631287398}
   particles: {fileID: 5774820567226537956, guid: 3fc6780cf139b40268c1d690a155189c, type: 3}
+  gameCamera: {fileID: 765995493}
+  crumbCanvas: {fileID: 23143213}
+  scoreTarget: {fileID: 357806181}
+  scoreCrumbPrefab: {fileID: 8891683307025168426, guid: f92fb35f86f74624697328dee6cbbe5a, type: 3}
 --- !u!1 &114302688
 GameObject:
   m_ObjectHideFlags: 0
@@ -1888,6 +1936,7 @@ RectTransform:
   - {fileID: 1464404211}
   - {fileID: 2118369507}
   - {fileID: 1275874484}
+  - {fileID: 23143213}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
