@@ -28,18 +28,15 @@ namespace _Bludoku.Scripts.Score
         {
             bool wasVisible = IsVisible(currentCombo);
             bool isVisible = IsVisible(comboCount);
+            bool comboChanged = comboCount != currentCombo;
 
-            if (isVisible)
-                comboText.text = string.Format(comboSettings.ComboFormat, comboCount);
-
-            if (isVisible && !wasVisible)
-                Show(animate);
-            else if (!isVisible && wasVisible)
-                Hide(animate);
-            else if (isVisible && animate && comboCount != currentCombo)
-                PlayComboPunch();
+            if (isVisible) comboText.text = string.Format(comboSettings.ComboFormat, comboCount);
 
             currentCombo = comboCount;
+
+            if (isVisible && !wasVisible) Show(animate);
+            else if (!isVisible && wasVisible) Hide(animate);
+            else if (isVisible && animate && comboChanged) PlayComboPunch();
         }
 
         private bool IsVisible(int comboCount) => comboCount >= comboSettings.MinVisibleCombo;
