@@ -1,65 +1,71 @@
 using UnityEngine;
+using _Bludoku.Scripts.Config;
 
 namespace _Bludoku.Scripts.Score
 {
     public static class ScoreSystem
     {
-        private static int _score;
-        private static int _highScore;
-        private static bool _isBoosterEnabled;
-        
-        private const string ScoreKey = "CurrentScore";
-        private const string HighScoreKey = "HighScore";
-        private const string BoosterKey = "Booster";
-        private const int ScoreForSet = 1;
-        private const float BoosterMultiplier = 1.5f;
+        private static int score;
+        private static int highScore;
+        private static int comboCount;
+        private static string comboKey = string.Empty;
 
-        public static int Score => _score;
-        public static int HighScore => _highScore;
-        public static bool IsBoosterEnabled => _isBoosterEnabled;
+        private const string SCORE_KEY = "CurrentScore";
+        private const string HIGH_SCORE_KEY = "HighScore";
+        private const int SCORE_FOR_SET = 1;
 
-        public static void SetBoosterEnabled(bool enabled)
+        public static int Score => score;
+        public static int HighScore => highScore;
+        public static int ComboCount => comboCount;
+
+        public static void SetComboCount(int comboCount)
         {
-            _isBoosterEnabled = enabled;
+            ScoreSystem.comboCount = comboCount < 0 ? 0 : comboCount;
         }
 
         public static void LoadScore()
         {
-            _score = PlayerPrefs.GetInt(ScoreKey, 0);
-            _highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
-            _isBoosterEnabled = PlayerPrefs.GetInt(BoosterKey) == 1;
+            comboKey = ConfigService.Instance.Get<ComboSettings>().PlayerPrefsKey;
+            score = PlayerPrefs.GetInt(SCORE_KEY, 0);
+            highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
+            comboCount = PlayerPrefs.GetInt(comboKey, 0);
         }
-        
-        public static void AddSetScore(int setsCount)
+
+        public static void AddSetScore(int setsCount, int multiplier)
         {
-            int scoreToAdd = setsCount * ScoreForSet;
-            scoreToAdd = (int)(scoreToAdd * (IsBoosterEnabled ? BoosterMultiplier : 1));
-            
-            AddScore(scoreToAdd);
+            if (setsCount <= 0)
+            {
+                SaveScore();
+                return;
+            }
+
+            int safeMultiplier = multiplier < 1 ? 1 : multiplier;
+            AddScore(setsCount * SCORE_FOR_SET * safeMultiplier);
         }
-        
+
         public static void AddScore(int score)
         {
-            _score = Score + score;
+            ScoreSystem.score = Score + score;
             if (HighScore < Score)
             {
-                _highScore = Score;
+                highScore = Score;
             }
-            
+
             SaveScore();
         }
 
         public static void ResetScore()
         {
-            _score = 0;
+            score = 0;
+            comboCount = 0;
             SaveScore();
         }
 
         private static void SaveScore()
         {
-            PlayerPrefs.SetInt(BoosterKey, IsBoosterEnabled ? 1 : 0);
-            PlayerPrefs.SetInt(ScoreKey, Score);
-            PlayerPrefs.SetInt(HighScoreKey, HighScore);
+            PlayerPrefs.SetInt(comboKey, ComboCount);
+            PlayerPrefs.SetInt(SCORE_KEY, Score);
+            PlayerPrefs.SetInt(HIGH_SCORE_KEY, HighScore);
             PlayerPrefs.Save();
         }
     }

@@ -8,42 +8,52 @@ namespace _Bludoku.Scripts.Score
         [SerializeField] private ScoreView scoreView;
         [SerializeField] private Board board;
         [SerializeField] private ScoreBoosterView boosterView;
-        
-        private readonly ScoreBoostSystem _scoreBoostSystem = new();
+        [SerializeField] private ScoreComboView comboView;
+
+        private readonly ScoreComboSystem scoreComboSystem = new();
 
         private void Awake()
         {
             board.OnFigurePlaced += FigurePlaced;
+            scoreComboSystem.Initialize();
+            comboView.Setup(scoreComboSystem.Settings);
         }
 
         private void Start()
         {
             ScoreSystem.LoadScore();
-            boosterView.SetBoosterEnabled(ScoreSystem.IsBoosterEnabled);
-            _scoreBoostSystem.IsBoosted = ScoreSystem.IsBoosterEnabled;
+            scoreComboSystem.SetComboCount(ScoreSystem.ComboCount);
+            UpdateComboViews(false);
             scoreView.UpdateScore(false);
         }
 
         public void ResetScore()
         {
             ScoreSystem.ResetScore();
+            scoreComboSystem.Reset();
             UpdateView();
         }
 
         private void FigurePlaced(ClearResult result)
         {
-            _scoreBoostSystem.FigurePlaced(result.ClearedCount);
-            boosterView.SetBoosterEnabled(_scoreBoostSystem.IsBoosted);
-            ScoreSystem.SetBoosterEnabled(_scoreBoostSystem.IsBoosted);
-            ScoreSystem.AddSetScore(result.ClearedCount);
+            scoreComboSystem.FigurePlaced(result.ClearedCount);
+            ScoreSystem.SetComboCount(scoreComboSystem.ComboCount);
+            ScoreSystem.AddSetScore(result.ClearedCount, scoreComboSystem.Multiplier);
+            UpdateComboViews();
             scoreView.UpdateScore();
         }
 
         private void UpdateView()
         {
-            boosterView.SetBoosterEnabled(false);
-            _scoreBoostSystem.IsBoosted = false;
+            UpdateComboViews(false);
             scoreView.UpdateScore(false);
+        }
+
+        private void UpdateComboViews(bool animate = true)
+        {
+            int comboCount = scoreComboSystem.ComboCount;
+            comboView.UpdateCombo(comboCount, animate);
+            boosterView.SetBoosterEnabled(comboCount >= scoreComboSystem.Settings.MinVisibleCombo);
         }
     }
 }
