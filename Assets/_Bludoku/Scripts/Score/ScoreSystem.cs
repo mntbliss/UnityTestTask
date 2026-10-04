@@ -1,5 +1,5 @@
-using UnityEngine;
 using _Bludoku.Scripts.Config;
+using _Bludoku.Scripts.Save;
 
 namespace _Bludoku.Scripts.Score
 {
@@ -7,10 +7,8 @@ namespace _Bludoku.Scripts.Score
     {
         public static ScoreData Data { get; private set; } = new ScoreData();
 
-        private static string comboKey = string.Empty;
+        private static readonly SaveSettings saveSettings = SaveService.Instance.Settings;
 
-        private const string SCORE_KEY = "CurrentScore";
-        private const string HIGH_SCORE_KEY = "HighScore";
         private const int SCORE_FOR_SET = 1;
 
         public static void SetComboCount(int comboCount)
@@ -20,10 +18,7 @@ namespace _Bludoku.Scripts.Score
 
         public static void LoadScore()
         {
-            comboKey = ConfigService.Instance.Get<ComboSettings>().PlayerPrefsKey;
-            Data.Score = PlayerPrefs.GetInt(SCORE_KEY, 0);
-            Data.HighScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
-            Data.ComboCount = PlayerPrefs.GetInt(comboKey, 0);
+            Data = SaveService.Instance.Get(saveSettings.ScoreDataKey, new ScoreData());
         }
 
         public static void AddSetScore(int setsCount, int multiplier)
@@ -55,10 +50,7 @@ namespace _Bludoku.Scripts.Score
 
         private static void SaveScore()
         {
-            PlayerPrefs.SetInt(comboKey, Data.ComboCount);
-            PlayerPrefs.SetInt(SCORE_KEY, Data.Score);
-            PlayerPrefs.SetInt(HIGH_SCORE_KEY, Data.HighScore);
-            PlayerPrefs.Save();
+            SaveService.Instance.Save(saveSettings.ScoreDataKey, Data);
         }
     }
 }

@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using _Bludoku.Scripts.Config;
+using _Bludoku.Scripts.Save;
 
 namespace _Bludoku.Scripts.Blocks
 {
     public class FiguresSaveLoad
     {
-        private const string FiguresSaveKey = "FiguresSave";
-        
+        private readonly SaveSettings saveSettings = SaveService.Instance.Settings;
+
         public void SaveFigures(List<Figure> figures)
         {
             string saveData = "";
@@ -23,14 +25,14 @@ namespace _Bludoku.Scripts.Blocks
                 }
             }
 
-            PlayerPrefs.SetString(FiguresSaveKey, saveData);
+            SaveService.Instance.Save(saveSettings.FiguresSaveKey, saveData);
         }
 
         public int[] LoadFigures()
         {
-            string saveData = PlayerPrefs.GetString(FiguresSaveKey, "");
-            if (string.IsNullOrEmpty(saveData))
-                return Array.Empty<int>();
+            if (!SaveService.Instance.Has(saveSettings.FiguresSaveKey)) return Array.Empty<int>();
+
+            string saveData = SaveService.Instance.Get(saveSettings.FiguresSaveKey);
 
             string[] figureIds = saveData.Split(';');
             int[] result = new int[figureIds.Length];

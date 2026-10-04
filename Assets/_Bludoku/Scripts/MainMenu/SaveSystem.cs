@@ -1,26 +1,34 @@
-using UnityEngine;
+using _Bludoku.Scripts.Config;
+using _Bludoku.Scripts.Save;
 
 namespace _Bludoku.Scripts.MainMenu
 {
-public static class SaveSystem
-{
-    private const string KEY_LEVEL = "Save_LevelIndex";
-
-    public static int CurrentLevelIndex => PlayerPrefs.GetInt(KEY_LEVEL, 0);
-
-    public static int CurrentLevelNumber => CurrentLevelIndex + 1;
-
-    public static void SaveLevel(int index)
+    public static class SaveSystem
     {
-        PlayerPrefs.SetInt(KEY_LEVEL, index);
-        PlayerPrefs.Save();
-    }
+        private static readonly SaveSettings saveSettings = SaveService.Instance.Settings;
 
-    public static void AdvanceLevel(int totalLevels)
-    {
-        if (totalLevels <= 0) return;
-        int next = (CurrentLevelIndex + 1) % totalLevels;
-        SaveLevel(next);
+        public static int CurrentLevelIndex
+        {
+            get
+            {
+                string value = SaveService.Instance.Get(saveSettings.LevelIndexKey, "0");
+                return int.TryParse(value, out int index) ? index : 0;
+            }
+        }
+
+        public static int CurrentLevelNumber => CurrentLevelIndex + 1;
+
+        public static void SaveLevel(int index)
+        {
+            SaveService.Instance.Save(saveSettings.LevelIndexKey, index.ToString());
+        }
+
+        public static void AdvanceLevel(int totalLevels)
+        {
+            if (totalLevels <= 0) return;
+
+            int next = (CurrentLevelIndex + 1) % totalLevels;
+            SaveLevel(next);
+        }
     }
-}
 }

@@ -1,13 +1,12 @@
 using UnityEngine;
+using _Bludoku.Scripts.Config;
+using _Bludoku.Scripts.Save;
 
 namespace _Bludoku.Scripts.MainMenu
 {
     public static class SettingsManager
     {
-        private const string KEY_SOUND = "Settings_Sound";
-        private const string KEY_MUSIC = "Settings_Music";
-        private const string KEY_NIGHTMODE = "Settings_NightMode";
-        private const string KEY_VIBRATION = "Settings_Vibration";
+        private static readonly SaveSettings saveSettings = SaveService.Instance.Settings;
 
         public static bool IsSoundEnabled { get; private set; }
         public static bool IsMusicEnabled { get; private set; }
@@ -16,49 +15,44 @@ namespace _Bludoku.Scripts.MainMenu
 
         static SettingsManager()
         {
-            IsSoundEnabled = PlayerPrefs.GetInt(KEY_SOUND, 1) == 1;
-            IsMusicEnabled = PlayerPrefs.GetInt(KEY_MUSIC, 1) == 1;
-            IsNightModeEnabled = PlayerPrefs.GetInt(KEY_NIGHTMODE, 1) == 1;
-            IsVibrationEnabled = PlayerPrefs.GetInt(KEY_VIBRATION, 1) == 1;
+            IsSoundEnabled = !SaveService.Instance.Has(saveSettings.SoundKey, "0");
+            IsMusicEnabled = !SaveService.Instance.Has(saveSettings.MusicKey, "0");
+            IsNightModeEnabled = !SaveService.Instance.Has(saveSettings.NightModeKey, "0");
+            IsVibrationEnabled = !SaveService.Instance.Has(saveSettings.VibrationKey, "0");
             ApplySettings();
         }
 
         public static void SetSound(bool enabled)
         {
             IsSoundEnabled = enabled;
-            PlayerPrefs.SetInt(KEY_SOUND, enabled ? 1 : 0);
-            PlayerPrefs.Save();
+            SaveService.Instance.Save(saveSettings.SoundKey, enabled ? "1" : "0");
             ApplySettings();
         }
 
         public static void SetMusic(bool enabled)
         {
             IsMusicEnabled = enabled;
-            PlayerPrefs.SetInt(KEY_MUSIC, enabled ? 1 : 0);
-            PlayerPrefs.Save();
+            SaveService.Instance.Save(saveSettings.MusicKey, enabled ? "1" : "0");
             ApplySettings();
         }
 
         public static void SetNightMode(bool enabled)
         {
             IsNightModeEnabled = enabled;
-            PlayerPrefs.SetInt(KEY_NIGHTMODE, enabled ? 1 : 0);
-            PlayerPrefs.Save();
+            SaveService.Instance.Save(saveSettings.NightModeKey, enabled ? "1" : "0");
             ApplySettings();
         }
 
         public static void SetVibration(bool enabled)
         {
             IsVibrationEnabled = enabled;
-            PlayerPrefs.SetInt(KEY_VIBRATION, enabled ? 1 : 0);
-            PlayerPrefs.Save();
+            SaveService.Instance.Save(saveSettings.VibrationKey, enabled ? "1" : "0");
             ApplySettings();
         }
 
         static void ApplySettings()
         {
             AudioListener.volume = IsSoundEnabled ? 1f : 0f;
-            
         }
     }
 }
